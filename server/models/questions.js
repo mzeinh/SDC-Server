@@ -2,7 +2,7 @@
 const db = require('../database');
 
 module.exports = {
-  getAll: (product_id, callback) => {
+  getAll: ({ product_id, requestPage, requestCount }, callback) => {
     const q = `SELECT
                 question_id, question_body,
                 to_timestamp(question_date/1000) as question_date,
@@ -17,7 +17,10 @@ module.exports = {
                         answers.answerer_name,
                         answers.helpfulness,
                         (
-                      SELECT json_agg(nested_photos)
+                      SELECT CASE COUNT(nested_photos)
+                        WHEN 0 THEN '[]'
+                        ELSE json_agg(nested_photos)
+                        END
                       FROM (
                         SELECT
                         photos.id,
@@ -31,13 +34,40 @@ module.exports = {
                   ) AS nested_answers
                 ) AS answers
             FROM questions
-          WHERE questions.product_id = $1`;
-    const values = [product_id];
+          WHERE questions.product_id = $1
+          LIMIT $2`;
+    const values = [product_id, requestCount];
+
     db.query(q, values, (err, res) => {
       if (err) {
         callback(err, null);
       } else {
         callback(null, res);
+      }
+    });
+  },
+
+  createRecord: ({ name, body, email, product_id }, callback) => {
+    const q = `INSERT INTO questions
+                (
+                  product_id,
+                  question_body,
+                  question_date,
+                  asker_name,
+                  asker_email,
+                )
+                VALUES
+                (
+                  $1, $2,  select extract(epoch from now()) * 1000, $3, $4
+                )
+                `;
+    const values = [product_id, body, name, email];
+
+    db.query(q, values, (err, result) => {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, result);
       }
     });
   },

@@ -8,4 +8,6 @@ router.get('/qa/questions', getAllQuestions);
 
 router.get('/qa/questions/:question_id/answers', getAllAnswers);
 
+router.post('/qa/questions', postQuestion);
+
 module.exports = router;
