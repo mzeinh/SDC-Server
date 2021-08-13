@@ -2,7 +2,7 @@
 const db = require('../database');
 
 module.exports = {
-  getAll: ({ product_id, requestPage, requestCount }, callback) => {
+  getAllQuestions: ({ product_id, requestPage, requestCount }, callback) => {
     const q = `SELECT
                 question_id, question_body,
                 to_timestamp(question_date/1000) as question_date,
@@ -38,30 +38,39 @@ module.exports = {
           LIMIT $2`;
     const values = [product_id, requestCount];
 
-    db.query(q, values, (err, res) => {
+    db.query(q, values, (err, result) => {
       if (err) {
         callback(err, null);
       } else {
-        callback(null, res);
+        callback(null, result);
       }
     });
   },
 
-  createRecord: ({ name, body, email, product_id }, callback) => {
+  createQuestion: ({
+    name,
+    body,
+    email,
+    product_id,
+  }, callback) => {
     const q = `INSERT INTO questions
                 (
                   product_id,
                   question_body,
                   question_date,
                   asker_name,
-                  asker_email,
+                  asker_email
                 )
                 VALUES
                 (
-                  $1, $2,  select extract(epoch from now()) * 1000, $3, $4
-                )
-                `;
-    const values = [product_id, body, name, email];
+                  $1, $2,  (select extract(epoch from now()) * 1000), $3, $4
+                )`;
+    const values = [
+      product_id,
+      body,
+      name,
+      email,
+    ];
 
     db.query(q, values, (err, result) => {
       if (err) {
@@ -71,4 +80,36 @@ module.exports = {
       }
     });
   },
+
+  updateQuestionHelpfulness: (question_id, callback) => {
+    const q = `UPDATE questions
+                SET question_helpfulness = question_helpfulness + 1
+                WHERE question_id = $1`;
+
+    const values = [question_id];
+
+    db.query(q, values, (err, result) => {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, result);
+      }
+    });
+  },
+
+  updateQuestionAsReported: (question_id, callback) => {
+    const q = `UPDATE questions
+    SET reported = true
+    WHERE question_id = $1`;
+
+    const values = [question_id];
+
+    db.query(q, values, (err, result) => {
+      if (err) {
+        callback(err, null);
+      } else {
+        callback(null, result);
+      }
+    });
+  }
 };

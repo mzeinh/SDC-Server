@@ -1,11 +1,12 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 const models = require('../models');
 
 module.exports = {
-  getAllQuestions(req, response) {
-    const { product_id } = req.query;
-    const requestPage = req.query.page || 0;
-    const requestCount = req.query.count || 5;
+  getAllQuestions(request, response) {
+    const { product_id } = request.query;
+    const requestPage = request.query.page || 0;
+    const requestCount = request.query.count || 5;
 
     const queryParams = {
       product_id,
@@ -19,18 +20,19 @@ module.exports = {
     };
 
     if (product_id) {
-      models.questions.getAll(queryParams, (err, result) => {
+      models.questions.getAllQuestions(queryParams, (err, result) => {
         if (err) {
-          console.log(err);
+          response.status(500).send();
         } else {
           productObj.results = result.rows;
-          response.send(productObj);
+          response.status(200).send(productObj);
         }
       });
     } else {
       response.status(404).send('product_id is not valid');
     }
   },
+
   postQuestion(request, response) {
     const {
       body,
@@ -40,14 +42,41 @@ module.exports = {
     } = request.body;
 
     if (body && name && email && product_id) {
-      models.questions.createRecord(request.body, (err, result) => {
+      models.questions.createQuestion(request.body, (err, result) => {
         if (err) {
-          console.log(err);
           response.status(500).send();
         } else {
           response.status(201).send();
         }
       });
-    };
+    }
+  },
+
+  markQuestionAsHelpful(request, response) {
+    const { question_id } = request.params;
+
+    if (question_id) {
+      models.questions.updateQuestionHelpfulness(question_id, (err, result) => {
+        if (err) {
+          response.status(500).send();
+        } else {
+          response.status(204).send();
+        }
+      });
+    }
+  },
+
+  markQuestionsAsReported(request, response) {
+    const { question_id } = request.params;
+
+    if (question_id) {
+      models.questions.updateQuestionAsReported(question_id, (err, result) => {
+        if (err) {
+          response.status(500).send();
+        } else {
+          response.status(204).send();
+        }
+      });
+    }
   },
 };
