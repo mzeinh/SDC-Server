@@ -29,7 +29,7 @@ module.exports = {
         }
       });
     } else {
-      response.status(404).send('product_id is not valid');
+      response.status(422).send();
     }
   },
 
@@ -49,6 +49,8 @@ module.exports = {
           response.status(201).send();
         }
       });
+    } else {
+      response.status(422).send();
     }
   },
 
@@ -63,6 +65,8 @@ module.exports = {
           response.status(204).send();
         }
       });
+    } else {
+      response.status(422).send();
     }
   },
 
@@ -77,6 +81,8 @@ module.exports = {
           response.status(204).send();
         }
       });
+    } else {
+      response.status(422).send();
     }
   },
 };

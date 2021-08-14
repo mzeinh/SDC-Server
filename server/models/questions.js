@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 const db = require('../database');
 
@@ -34,9 +35,10 @@ module.exports = {
                   ) AS nested_answers
                 ) AS answers
             FROM questions
-          WHERE questions.product_id = $1
-          LIMIT $2`;
-    const values = [product_id, requestCount];
+          WHERE questions.product_id = $1 AND questions.reported = false
+          OFFSET $2
+          LIMIT $3`;
+    const values = [product_id, requestPage, requestCount];
 
     db.query(q, values, (err, result) => {
       if (err) {
@@ -63,7 +65,7 @@ module.exports = {
                 )
                 VALUES
                 (
-                  $1, $2,  (select extract(epoch from now()) * 1000), $3, $4
+                  $1, $2, (select extract(epoch from now()) * 1000), $3, $4
                 )`;
     const values = [
       product_id,
@@ -111,5 +113,5 @@ module.exports = {
         callback(null, result);
       }
     });
-  }
+  },
 };
