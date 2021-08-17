@@ -1,4 +1,4 @@
 node_modules
 config.js
-db_cred.env
+.env
 CSV

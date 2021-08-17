@@ -1,9 +1,9 @@
 const { Pool, Client } = require('pg');
 
-const connectionString = process.env.DB_LINK;
+const connectionAuth = process.env.HOST;
 
 const pool = new Pool({
-  connectionString: 'pg://root:1234567@127.0.0.1:5432/sdc',
+  connectionString: connectionAuth,
 });
 
 module.exports = {

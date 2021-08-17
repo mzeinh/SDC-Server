@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../db_cred.env' });
+require('dotenv').config();
 const express = require('express');
 const router = require('./routes');
 
